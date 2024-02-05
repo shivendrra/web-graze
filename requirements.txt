@@ -1,0 +1,4 @@
+googleapis
+bs4
+requests
+tqdm

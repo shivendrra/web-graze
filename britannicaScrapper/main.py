@@ -1,12 +1,6 @@
-"""
---> this code takes use of URLFetcher.py and fetches the text data from each of the pages
---> saves it in a .txt file
---> voila!!
-"""
-
 import os
 import json
-from config import current_directory
+from ..config.config import current_directory
 
 os.chdir(current_directory)
 

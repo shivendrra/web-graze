@@ -1,4 +1,4 @@
-from config import current_directory
+from ..config.config import current_directory
 import os
 os.chdir(current_directory)
 
