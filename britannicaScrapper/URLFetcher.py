@@ -1,5 +1,6 @@
+from config import current_directory
 import os
-os.chdir('D:/Machine Learning/SLM-Project/')
+os.chdir(current_directory)
 
 import requests
 from bs4 import BeautifulSoup
