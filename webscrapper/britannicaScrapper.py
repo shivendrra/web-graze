@@ -1,10 +1,14 @@
+"""
+--> this code takes use of URLFetcher.py and fetches the text data from each of the pages
+--> saves it in a .txt file
+--> voila!!
+"""
+
 import os
 import json
-from ..config import current_directory
+os.chdir('D:/Machine Learning/SLM-Project/')
 
-os.chdir(current_directory)
-
-query_file = 'search_queries.json'
+query_file = 'Data Collection/webscrapper/search_queries.json'
 out_file = f'Data/webscrapped data/britannica_output.txt'
 max_limit = 10
 
@@ -13,7 +17,7 @@ with open(query_file, 'r') as file:
 
 from tqdm import tqdm
 
-from UrlFetcher import BritannicaUrls
+from URLFetcher import BritannicaUrls
 scrape = BritannicaUrls(search_queries=search_queries, max_limit=10)
 with tqdm(total=len(search_queries) * max_limit, desc="Generating URL snippets: ") as pbar:
   url_snippets = scrape.generate_urls(progress_bar=pbar)
