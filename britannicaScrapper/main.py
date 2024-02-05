@@ -6,7 +6,9 @@
 
 import os
 import json
-os.chdir('D:/Machine Learning/DataCollection/')
+from config import current_directory
+
+os.chdir(current_directory)
 
 query_file = 'search_queries.json'
 out_file = f'Data/webscrapped data/britannica_output.txt'
@@ -17,7 +19,7 @@ with open(query_file, 'r') as file:
 
 from tqdm import tqdm
 
-from URLFetcher import BritannicaUrls
+from UrlFetcher import BritannicaUrls
 scrape = BritannicaUrls(search_queries=search_queries, max_limit=10)
 with tqdm(total=len(search_queries) * max_limit, desc="Generating URL snippets: ") as pbar:
   url_snippets = scrape.generate_urls(progress_bar=pbar)
