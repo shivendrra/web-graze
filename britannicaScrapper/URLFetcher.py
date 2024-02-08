@@ -1,7 +1,3 @@
-from ..config import current_directory
-import os
-os.chdir(current_directory)
-
 import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -49,3 +45,6 @@ class BritannicaUrls:
         if progress_bar:
           progress_bar.update(1)
     return page_urls
+  
+if __name__ == '__main__':
+  bs = BritannicaUrls(search_queries=['antarctica', 'usa'], max_limit=10)

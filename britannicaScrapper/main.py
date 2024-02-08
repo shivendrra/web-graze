@@ -1,7 +1,6 @@
-import os
 import json
-from ..config import current_directory
-
+import os
+current_directory = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_directory)
 
 query_file = 'search_queries.json'
@@ -13,7 +12,7 @@ with open(query_file, 'r') as file:
 
 from tqdm import tqdm
 
-from UrlFetcher import BritannicaUrls
+from URLFetcher import BritannicaUrls
 scrape = BritannicaUrls(search_queries=search_queries, max_limit=10)
 with tqdm(total=len(search_queries) * max_limit, desc="Generating URL snippets: ") as pbar:
   url_snippets = scrape.generate_urls(progress_bar=pbar)
