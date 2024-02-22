@@ -1,4 +1,5 @@
-googleapis
 bs4
 requests
 tqdm
+timeit
+json
