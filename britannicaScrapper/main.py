@@ -4,15 +4,16 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_directory)
 
 query_file = 'search_queries.json'
-out_file = f'Data/webscrapped data/britannica_output.txt'
+out_file = 'britannica_ouptut.txt'
+out_path = os.path.join(current_directory, '../data', out_file)
 max_limit = 10
 
 with open(query_file, 'r') as file:
   search_queries = json.load(file)
 
 from tqdm import tqdm
-
 from URLFetcher import BritannicaUrls
+
 scrape = BritannicaUrls(search_queries=search_queries, max_limit=10)
 with tqdm(total=len(search_queries) * max_limit, desc="Generating URL snippets: ") as pbar:
   url_snippets = scrape.generate_urls(progress_bar=pbar)
@@ -42,6 +43,6 @@ if __name__ == '__main__':
   with tqdm(total=len(url_snippets), desc="Scrapping in progress: ") as pbar:
     for snippets in url_snippets:
       page = text_extractor(snippets)
-      with open(out_file, 'a', encoding='utf-8') as file:
+      with open(out_path, 'a', encoding='utf-8') as file:
         file.write(page)
       pbar.update(1)
