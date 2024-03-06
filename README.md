@@ -1,2 +1,4 @@
-# DataCollection
-This repository contains code to collect data from various sources of the internet, like wikipedia, internet archieve, britannica, youtube
+# Taneleer Tivan
+## the collector
+
+this repo contains codes that would help you to scrape data from various sites on the internet like wikipedia, britannca, youtube, etc
