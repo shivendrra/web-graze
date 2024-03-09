@@ -15,6 +15,7 @@ bs(out_file='../scrapped_data.txt.')
 -- in progeress
 
 ## File Structure
+```
 .
 ├── britannica
 │   ├── __init__.py
@@ -42,7 +43,7 @@ bs(out_file='../scrapped_data.txt.')
 ├── .gitignore
 ├── README.md
 ├── test.py
-
+```
 ## Contribution
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please make sure to update tests as appropriate.
 
