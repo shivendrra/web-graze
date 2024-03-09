@@ -2,7 +2,7 @@ import os
 current_directory = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_directory)
 
-from URLFetcher import BritannicaUrls as bu
+from .URLFetcher import BritannicaUrls as bu
 import requests
 import re
 from bs4 import BeautifulSoup as bs

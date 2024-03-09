@@ -4,7 +4,7 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_directory)
 print(f"current directory: {current_directory}")
 
-query_file = '../britannica/search_queries.json'
+query_file = 'britannica/search_queries.json'
 out_file = 'britannica_ouptut.txt'
 out_path = os.path.join(current_directory, '../data', out_file)
 max_limit = 10
