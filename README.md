@@ -14,6 +14,32 @@ bs(out_file='../scrapped_data.txt.')
 ### Transcripts Collector
 -- in progeress
 
+```python
+import os
+api_key = os.getenv('yt_secret_key')
+out_file = 'transcripts.txt'
+
+from youtube_transcripts import TranscriptsCollector
+ts = TranscriptsCollector(api_key=api_key)
+ts(channel_ids=["UCb_MAhL8Thb3HJ_wPkH3gcw"], target_file=out_file)
+```
+
+I've included list of more than 100 YouTube channels' ids in `channel_ids.json`. You can use those or you can use according to your convinience. These `channel_ids` can generate upto 4gbs of transcripts from over ~200k videos.
+
+```json
+// channel_ids.json
+
+[
+  "UCb_MAhL8Thb3HJ_wPkH3gcw",
+  "UCA295QVkf9O1RQ8_-s3FVXg",
+  "UCpFFItkfZz1qz5PpHpqzYBw",
+  ....
+  "UCiMhD4jzUqG-IgPzUmmytRQ",
+  "UCB0JSO6d5ysH2Mmqz5I9rIw",
+  "UC-lHJZR3Gqxm24_Vd_AJ5Yw"
+]
+```
+
 ## File Structure
 ```
 .
@@ -32,13 +58,12 @@ bs(out_file='../scrapped_data.txt.')
 │   ├── webDataScrapping.js
 ├── Transcript Collection
 │   ├── __init__.py
-│   ├── TestDataCollector.py
+│   ├── basic.py
 │   ├── channel_ids.json
 │   ├── channe_ids_snippet.json
 │   ├── requirements.txt
-│   ├── transcriptCollector.py
-│   ├── YTFineTuneDataCollector.py
-│   ├── videoUrls.json
+│   ├── main.py
+│   ├── version2.py
 ├── .env
 ├── .gitignore
 ├── README.md
