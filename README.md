@@ -1,4 +1,4 @@
-# data-collection
+# web-graze
 
 ## Introduction
 this repo contains codes that would help you to scrape data from various sites on the internet like wikipedia, britannca, youtube, etc.
@@ -13,7 +13,14 @@ bs = Scrapper(search_queries=['antarctica', 'america', 'continents'], max_limit=
 bs(out_file='../scrapped_data.txt.')
 ```
 
-I've made a sample `search_queries.json` that contains few keywords that could be used to scraped the pages. You can use your own, though
+I've made a sample `search_queries.json` that contains few keywords that could be used to scraped the pages. You can use your own, though.
+
+```python
+from britannica import searchQueries
+
+queries = searchQueries()
+print(queries())
+```
 
 ### Transcripts Collector
 It uses [Youtube V3 api](https://developers.google.com/youtube/v3/docs) to fetch uploaded videos by a particular channel and then generates `video_ids` which then is used to generate transcripts using [youtube-transcripts-api](https://github.com/jdepoix/youtube-transcript-api/tree/master).
@@ -62,10 +69,11 @@ print(snippets())
 .
 ├── britannica
 │   ├── __init__.py
-│   ├── URLFetcher.py
-│   ├── requirements.txt
 │   ├── main.py
+│   ├── queries.py
+│   ├── requirements.txt
 │   ├── search_queries.json
+│   ├── URLFetcher.py
 ├── javascript
 │   ├── customLinkFinder.js
 │   ├── customSearch.js
@@ -76,16 +84,18 @@ print(snippets())
 ├── youtube_transcripts
 │   ├── __init__.py
 │   ├── basic.py
-│   ├── snippets.py
-│   ├── channel_ids.json
 │   ├── channe_ids_snippet.json
-│   ├── requirements.txt
+│   ├── channel_ids.json
 │   ├── main.py
+│   ├── requirements.txt
+│   ├── snippets.py
 │   ├── version2.py
 ├── .env
 ├── .gitignore
-├── README.md
+├── CONTRIBUTING.md
 ├── LargeDataCollector.ipynb
+├── LICENSE
+├── README.md
 ├── test.py
 ```
 
