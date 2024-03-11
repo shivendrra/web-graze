@@ -22,6 +22,24 @@ queries = searchQueries()
 print(queries())
 ```
 
+### Wikipedia Scrapper
+It scrapes web-pages from [wikipedia.com](https://en.wikipedia.org/) to generate the data for later uses.
+
+```python
+from wikipedia import WikiScraper
+scrape = WikiScraper()
+scrape(search_queries=["Antarctica", "Colonization", "World war"], out_file=out_file)
+```
+
+I've included sample `search_queries` that can be used to scrape certain data. You're free to use your own queries.
+
+```python
+from wikipedia import WikiQueries
+
+queries = WikiQueries()
+print(queries())
+```
+
 ### Transcripts Collector
 It uses [Youtube V3 api](https://developers.google.com/youtube/v3/docs) to fetch uploaded videos by a particular channel and then generates `video_ids` which then is used to generate transcripts using [youtube-transcripts-api](https://github.com/jdepoix/youtube-transcript-api/tree/master).
 
@@ -105,4 +123,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Check out [CONTRIBUTING.md](https://github.com/shivendrra/web-graze/blob/main/CONTRIBUTING.md) for more details
 
 ## License
-None for now!!
+MIT License
