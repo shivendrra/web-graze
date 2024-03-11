@@ -64,7 +64,7 @@ class TranscriptsCollector:
     return videoIds, channel_name
 
   def get_transcripts(self, video_ids, channel_name):
-    with tqdm(total=len(video_ids), desc=f"Fetching '{channel_name}' videos\t") as pbar:
+    with tqdm(total=len(video_ids), desc=f"Fetching '{channel_name}' videos") as pbar:
       for ids in video_ids:
         try:
           raw_transcripts = []
