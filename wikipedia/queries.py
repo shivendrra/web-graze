@@ -40,7 +40,9 @@ class WikiQueries:
       "Particle physics",
       "Particle accelerator",
       "Literature",
-      "Wikipedia"
+      "Wikipedia",
+      "Loss function",
+      "Bayesian probability",
     ]
 
   def __call__(self):

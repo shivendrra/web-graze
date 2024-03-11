@@ -24,11 +24,12 @@ print(queries())
 
 ### Wikipedia Scrapper
 It scrapes web-pages from [wikipedia.com](https://en.wikipedia.org/) to generate the data for later uses.
+It has one more feature `extra_urls=True`, this, if True will fetch new urls present on the initial query-web-pages, and will scrape those pages too.
 
 ```python
 from wikipedia import WikiScraper
 scrape = WikiScraper()
-scrape(search_queries=["Antarctica", "Colonization", "World war"], out_file=out_file)
+scrape(search_queries=["Antarctica", "Colonization", "World war"], out_file=out_file, extra_url=True)
 ```
 
 I've included sample `search_queries` that can be used to scrape certain data. You're free to use your own queries.
@@ -41,7 +42,7 @@ print(queries())
 ```
 
 ### Transcripts Collector
-It uses [Youtube V3 api](https://developers.google.com/youtube/v3/docs) to fetch uploaded videos by a particular channel and then generates `video_ids` which then is used to generate transcripts using [youtube-transcripts-api](https://github.com/jdepoix/youtube-transcript-api/tree/master).
+It uses [Youtube V3 api](https://developers.google.com/youtube/v3/docs) to fetch uploaded videos by a particular channel and then generates `video_ids` which then is used to generate transcripts using [youtube-transcripts-api](https://github.com/jdepoix/youtube-transcript-api/tree/master). `max_results` can be set up to 100, not more than that.
 
 ```python
 import os
@@ -50,7 +51,7 @@ out_file = 'transcripts.txt'
 
 from youtube_transcripts import TranscriptsCollector
 ts = TranscriptsCollector(api_key=api_key)
-ts(channel_ids=["UCb_MAhL8Thb3HJ_wPkH3gcw"], target_file=out_file)
+ts(channel_ids=["UCb_MAhL8Thb3HJ_wPkH3gcw"], target_file=out_file, max_results=100)
 ```
 
 I've included list of more than 100 YouTube channels' ids in `channel_ids.json`. You can use those or you can use according to your convinience. These `channel_ids` can generate upto 4gbs of transcripts from over ~200k videos.
