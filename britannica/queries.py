@@ -2,9 +2,6 @@
   --> contains some sample search queries for the britannica scrapper
 """
 
-from typing import Any
-
-
 class searchQueries:
   def __init__(self):
     self.search_queries = [
