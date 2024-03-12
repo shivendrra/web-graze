@@ -21,8 +21,10 @@ class Scrapper(bu):
       for snippets in url_snippets:
         page = self.text_extractor(snippets)
         if outfile is not None:
-          with open(outfile, 'a', encoding='utf-8') as f:
-            f.write(page)
+          if page is not None:
+            with open(outfile, 'a', encoding='utf-8') as f:
+              f.write(page)
+          else: continue
           pbar.update(1)
         else:
           raise ValueError("Provide valid outfile with path")

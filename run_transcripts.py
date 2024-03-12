@@ -13,7 +13,7 @@ api_key = os.getenv('yt_key')
 from youtube_transcripts import SampleSnippets, TranscriptsCollector
 ss = SampleSnippets()
 channe_ids = ss()
-target_ids = channe_ids[:24]
+target_ids = channe_ids[46:54]
 out_file = f'../Datasets/transcripts_{len(target_ids)}.txt'
 
 collector = TranscriptsCollector(api_key=api_key)

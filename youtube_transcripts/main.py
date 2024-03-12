@@ -94,6 +94,6 @@ class TranscriptsCollector:
   def generate_summary(self):
     print("\n")
     print('\t\tSummary\t\t')
-    print(f"total time taken: {self.total_time / 60} mins")
+    print(f"total time taken: {(self.total_time / 3606):.2f} hrs")
     print(f"total videos that had transcripts: {self.videoNo}")
     print(f"total skipped videos: {self.skippedVids}")
