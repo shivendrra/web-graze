@@ -41,6 +41,20 @@ queries = WikiQueries()
 print(queries())
 ```
 
+If you're downloading XML dumps from Wikipedia eg. dump: [Dump Page for March 2024](https://dumps.wikimedia.org/wikidatawiki/20240301/). Use `xml_parser.py` to convert .xml to a .txt file containing all target urls and then run `WikiXMLScrapper()` to generate a large .txt file.
+
+```python
+from wikipedia import WikiXMLScraper
+
+scraper = WikiXMLScraper()
+url_file = 'extracted_urls.txt'
+output_file = 'Datasets/wiki_110k.txt'
+
+start_time = timeit.default_timer()
+scraper.scrape_from_file(url_file, output_file, batch_size=500)
+print(f"Total time taken: {timeit.default_timer() - start_time:.2f} mins")
+```
+
 ### Transcripts Collector
 It uses [Youtube V3 api](https://developers.google.com/youtube/v3/docs) to fetch uploaded videos by a particular channel and then generates `video_ids` which then is used to generate transcripts using [youtube-transcripts-api](https://github.com/jdepoix/youtube-transcript-api/tree/master). `max_results` can be set up to 100, not more than that.
 
@@ -100,6 +114,17 @@ print(snippets())
 │   ├── googleCustomSearch.js
 │   ├── sample.js
 │   ├── webDataScrapping.js
+├── run.py
+│   ├── run_britannica.py
+│   ├── run_transcripts.py
+│   ├── run_wiki.py
+├── wikipedia
+│   ├── __init__.py
+│   ├── fetch_urls.py
+│   ├── main.py
+│   ├── queries.py
+│   ├── requirements.txt
+│   ├── search_queries.json
 ├── youtube_transcripts
 │   ├── __init__.py
 │   ├── basic.py
@@ -109,13 +134,14 @@ print(snippets())
 │   ├── requirements.txt
 │   ├── snippets.py
 │   ├── version2.py
-├── .env
 ├── .gitignore
 ├── CONTRIBUTING.md
 ├── LargeDataCollector.ipynb
 ├── LICENSE
 ├── README.md
 ├── test.py
+├── wiki_extractor.py
+├── xml_parser.py
 ```
 
 ## Contribution
