@@ -1,6 +1,9 @@
 # extras
 *.env
 Datasets
+*.xml
+xml dumps
+extracted_urls.txt
 
 # Logs
 logs
