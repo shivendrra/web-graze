@@ -1,19 +1,9 @@
-import json
-import os
-current_directory = os.path.dirname(os.path.abspath(__file__))
-os.chdir(current_directory)
-print(f"current directory: {current_directory}")
+# from graze import britannica
 
-query_file = 'britannica/search_queries.json'
-out_file = 'britannica_ouptut.txt'
-out_path = os.path.join(current_directory, '../data', out_file)
-max_limit = 10
+# brit = britannica(max_limit=20)
+# brit(outfile='./outputs.txt')
 
-with open(query_file, 'r') as file:
-  search_queries = json.load(file)
-print(search_queries)
+from graze import wikipedia
 
-from britannica import Scrapper
-
-bs = Scrapper(search_queries, max_limit)
-bs(out_file)
+wiki = wikipedia()
+wiki(out_file='./output.txt')

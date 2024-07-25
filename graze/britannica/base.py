@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from tqdm import tqdm
-
+import time
 class BritannicaUrls:
   def __init__(self, search_queries, max_limit):
     self.max_limit = max_limit
@@ -13,23 +12,25 @@ class BritannicaUrls:
     url = f"https://www.britannica.com/search?query={formattedQuery}&page={pageNo}"
     return url
 
-  def get_target_url(self, targets):
-    r = requests.get(targets, headers=self.headers)
-    list_url = []
-
-    if r.status_code == 200:
-      html_content = r.content
-      soup = BeautifulSoup(html_content, 'html.parser')
-      fetched_urls = soup.find_all('a', attrs={'class': 'font-weight-bold font-18'})
-      list_url.extend([url.get('href') for url in fetched_urls])
-      return list_url
-
-    else:
-      print(f"skipping this {targets}")
+  def get_target_url(self, target_url):
+    while True:
+      r = requests.get(target_url, headers=self.headers)
+      if r.status_code == 200:
+        html_content = r.content
+        soup = BeautifulSoup(html_content, 'html.parser')
+        fetched_urls = soup.find_all('a', class_='md-crosslink')
+        list_url = [url.get('href') for url in fetched_urls]
+        return list_url
+      
+      elif r.status_code == 429:
+        print(f"Rate limit exceeded. Waiting 30secs before retrying: {target_url}")
+        time.sleep(30)
+      else:
+        print(f"Skipping this URL due to status code {r.status_code}: {target_url}")
+        return []
 
   def generate_urls(self, progress_bar=None):
     page_urls = []
-    total_iterations = len(self.search_queries) * self.max_limit
     current_iteration = 0
 
     for query in self.search_queries:
@@ -38,13 +39,9 @@ class BritannicaUrls:
         target_url = self.build_url(query, pageNo)
         pageNo += 1
         new_url = self.get_target_url(target_url)
-        page_urls.extend(new_url)
-
-        # Update the progress bar
+        if new_url:
+          page_urls.extend(new_url)
         current_iteration += 1
         if progress_bar:
           progress_bar.update(1)
     return page_urls
-  
-if __name__ == '__main__':
-  bs = BritannicaUrls(search_queries=['antarctica', 'usa'], max_limit=10)
