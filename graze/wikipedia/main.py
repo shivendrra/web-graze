@@ -11,17 +11,22 @@ os.chdir(current_dir)
 import requests
 from bs4 import BeautifulSoup as bs
 from tqdm import tqdm
+from .queries import WikiQueries
 
 class WikiScraper:
-  def __init__(self):
+  def __init__(self, search_queries=None):
     self.headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"}
     self.list_urls = []
     self.extra_urls = []
     self.total_urls = 0
+    if search_queries:
+      self.search_queries = search_queries
+    else: 
+      self.search_queries = WikiQueries()
 
-  def __call__(self, search_queries, out_file=None, extra_urls=False):
+  def __call__(self, out_file=None, extra_urls=False):
     if out_file is not None:
-      for query in tqdm(search_queries, desc="Generating valid urls"):
+      for query in tqdm(self.search_queries(), desc="Generating valid urls"):
         target_url = self.build_urls(query)
         self.list_urls.append(target_url)
       
@@ -35,7 +40,7 @@ class WikiScraper:
           else: continue
       
       if extra_urls is True:
-        for query in tqdm(search_queries, desc="Generating extra urls"):
+        for query in tqdm(self.search_queries(), desc="Generating extra urls"):
           extra_urls = self.fetch_extra_urls(query)
           self.extra_urls.append(extra_urls)
         for url in tqdm([item for sublist in self.extra_urls for item in sublist], desc="Scrapping extra urls"):
