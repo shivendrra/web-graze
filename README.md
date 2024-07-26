@@ -16,7 +16,7 @@ This repository contains a collection of scripts to scrape content from various 
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/yourusername/web-scraper-suite.git
+   git clone https://github.com/shivendrra/web-graze.git
    cd web-scraper-suite
    ```
 
@@ -110,6 +110,34 @@ from graze import britannica
 
 scraper = britannica(max_limit=20)
 scraper(out_file='./output.txt')
+```
+
+### Unsplash Scraper
+
+The Unsplash Image scraper fetches images based on given topics & saves them in their respective folders
+
+#### Configuration
+- Define your search queries in `queries.py`:
+  ```python
+  search_queries = ["topic1", "topic2", "topic3"]
+  ```
+
+#### Running the Scraper
+
+```python
+import graze
+
+scraper = graze.unsplash(topics=search_queries)
+```
+
+#### Output:
+```shell
+
+Downloading 'american football' images:
+Downloading : 100%|██████████████████████████| 176/176 [00:30<00:00,  5.72it/s]
+
+Downloading 'indian festivals' images:
+Downloading : 100%|██████████████████████████| 121/121 [00:30<00:00,  7.29it/s]
 ```
 
 ## Configuration
