@@ -22,5 +22,7 @@ class Queries:
       return queries["search_topics"]
     elif self.category == "channel":
       return queries["channel_ids"]
+    elif self.category == "images":
+      return queries["image_topics"]
     else:
       raise TypeError(error_msg)
