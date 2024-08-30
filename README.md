@@ -8,7 +8,7 @@ This repository contains a collection of scripts to scrape content from various 
 - [Usage](#usage)
   - [YouTube Scraper](#youtube-scraper)
   - [Wikipedia Scraper](#wikipedia-scraper)
-  - [Britannica Scraper](#britannica-scraper)
+  - [Unsplash Scraper](#unsplash-scraper)
 - [Configuration](#configuration)
 - [Logging](#logging)
 
@@ -33,7 +33,35 @@ This repository contains a collection of scripts to scrape content from various 
 
 ## Usage
 
-### YouTube Scraper
+### 1. Queries
+
+This library contains some topics, keywords, search queries & channel ids which you can just load & use it with the respective scrapers.
+
+#### Channel Ids
+
+```python
+from graze.queries import Queries
+
+queries = Queries(category="channel")
+```
+
+#### Search Queries
+
+```python
+from graze.queries import Queries
+
+queries = Queries(category="search")
+```
+
+#### Image Topics
+
+```python
+from graze.queries import Queries
+
+queries = Queries(category="channel")
+```
+
+### 2. YouTube Scraper
 
 The YouTube scraper fetches video captions from a list of channels.
 
@@ -54,65 +82,40 @@ The YouTube scraper fetches video captions from a list of channels.
 #### Running the Scraper
 
 ```python
+import os
 from dotenv import load_dotenv
 load_dotenv()
+current_directory = os.path.dirname(os.path.abspath(__file__))
+os.chdir(current_directory)
+
 api_key = os.getenv('yt_key')
 
-from graze import youtube
+from graze import Youtube
+from graze.queries import Queries
 
-scraper = youtube(api_key=api_key, filepath='./output.txt')
-scraper()
+queries = Queries(category="channel")
+
+youtube = Youtube(api_key=api_key, filepath='../transcripts', max_results=50)
+youtube(channel_ids=queries(), videoUrls=True)
 ```
 
-### Wikipedia Scraper
+### 3. Wikipedia Scraper
 
 The Wikipedia scraper generates target URLs from provided queries, fetches the complete web page, and writes it to a file.
 
-#### Configuration
-- Define your search queries in `queries.py`:
-  ```python
-  class WikiQueries:
-      def __init__(self):
-          self.search_queries = ["topic1", "topic2", "topic3"]
-      
-      def __call__(self):
-          return self.search_queries
-  ```
-
 #### Running the Scraper
 
 ```python
-from graze import wikipedia
+from graze import Wikipedia
+from graze.queries import Queries
 
-wiki = wikipedia()
-wiki(out_file='./output.txt')
+queries = Queries(category="search")
+wiki = Wikipedia(filepath='../data.txt', metrics=True)
+
+wiki(queries=queries(), extra_urls=True)
 ```
 
-### Britannica Scraper
-
-The Britannica scraper fetches content based on search queries and writes it to a file.
-
-#### Configuration
-- Define your search queries in `queries.py`:
-  ```python
-  class BritannicaQueries:
-      def __init__(self):
-          self.search_queries = ["topic1", "topic2", "topic3"]
-      
-      def __call__(self):
-          return self.search_queries
-  ```
-
-#### Running the Scraper
-
-```python
-from graze import britannica
-
-scraper = britannica(max_limit=20)
-scraper(out_file='./output.txt')
-```
-
-### Unsplash Scraper
+### 4. Unsplash Scraper
 
 The Unsplash Image scraper fetches images based on given topics & saves them in their respective folders
 
@@ -125,9 +128,13 @@ The Unsplash Image scraper fetches images based on given topics & saves them in 
 #### Running the Scraper
 
 ```python
-import graze
+from graze import Unsplash
+from graze.queries import Queries
 
-scraper = graze.unsplash(topics=search_queries)
+topics = Queries("images")
+
+image = Unsplash(directory='../images', metrics=True)
+image(topics=topics())
 ```
 
 #### Output:
@@ -148,7 +155,7 @@ Downloading : 100%|████████████████████�
 
 ## Logging
 
-The YouTube scraper logs errors to `youtube_fetch.log`. Make sure to check this file for detailed error messages and troubleshooting information.
+Each scraper logs errors to respective `.log` file. Make sure to check this file for detailed error messages & troubleshooting information.
 
 ## Contribution
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please make sure to update tests as appropriate.

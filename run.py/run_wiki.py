@@ -1,18 +1,7 @@
-"""
-  --> sample script to collect data from wikipedia.com
-"""
+from graze import Wikipedia
+from graze.queries import Queries
 
-import os
-current_directory = os.path.dirname(os.path.abspath(__file__))
-os.chdir(current_directory)
-import timeit
+queries = Queries(category="search")
+wiki = Wikipedia(filepath='../data.txt', metrics=True)
 
-from graze import wikipedia
-
-wiki = wikipedia()
-
-start_time = timeit.default_timer()
-wiki(out_file='./output.txt')
-end_time = timeit.default_timer()
-
-print(f"total time taken: {((end_time - start_time) / 60):2f} mins")
+wiki(queries=queries(), extra_urls=True)

@@ -27,6 +27,6 @@ If you encounter any bugs, issues, or have feature requests, please [open an iss
 
 ## Questions
 
-If you have any questions or need further clarification, feel free to reach out to me, email: shivharsh44@gmai.com
+If you have any questions or need further clarification, feel free to reach out to me, email: shivharsh44@gmail.com
 
 I appreciate your contributions and hope you enjoy working with us on this project!
