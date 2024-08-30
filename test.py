@@ -2,10 +2,10 @@ import os
 current_directory = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_directory)
 
-from graze import Unsplash
+from graze import Britannica
 from graze.queries import Queries
 
-topics = Queries("images")
+queries = Queries(category="search")
+wiki = Britannica(filepath='../data.txt', metrics=True)
 
-image = Unsplash(directory='../images', metrics=True)
-image(topics=topics())
+wiki(queries=queries())

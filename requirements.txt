@@ -8,3 +8,6 @@ googleapiclient
 youtube_transcript_api
 logging
 typing
+selenium
+webdriver-manager
+base64
