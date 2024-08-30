@@ -4,3 +4,7 @@ tqdm
 timeit
 json
 re
+googleapiclient
+youtube_transcript_api
+logging
+typing

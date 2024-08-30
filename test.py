@@ -1,7 +1,11 @@
-from graze import Unsplash
-# from graze.queries import Queries
+import os
+current_directory = os.path.dirname(os.path.abspath(__file__))
+os.chdir(current_directory)
 
-# queries = Queries(category="search")
-# print(queries())
-image = Unsplash(directory='../images')
-image(topics=['cars'])
+from graze import Unsplash
+from graze.queries import Queries
+
+topics = Queries("images")
+
+image = Unsplash(directory='../images', metrics=True)
+image(topics=topics())

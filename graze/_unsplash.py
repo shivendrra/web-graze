@@ -40,8 +40,8 @@ class Unsplash:
       raise ValueError("Enter some topic, can't be empty")
     self.topicNo = len(topics)
     for topic in topics:
-      img_data = self.fetch_url(topic)
-
+      print(f"\nDownloading '{topic}' images:")
+      self.fetch_url(topic)
     if self.metrics:
       self.get_metrics()
 
@@ -77,7 +77,7 @@ class Unsplash:
         os.makedirs(topic_dir)
 
       start_time = timeit.default_timer()
-      with tqdm(total=len(img_tags), desc=f"Downloading images for '{topic}'") as pbar:
+      with tqdm(total=len(img_tags), desc=f"Downloading '") as pbar:
         for idx, img in enumerate(img_tags):
           try:
             img_src = img.get('src')
