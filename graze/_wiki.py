@@ -105,7 +105,7 @@ class Wikipedia:
     with open(filepath, "a", encoding="utf-8") as f:
       for paragraph in paragraphs:
         text = paragraph.get_text()
-        f.write(text + "\n")
+        f.write(text)
 
   def get_metrics(self):
     if self.total_time < 60:
