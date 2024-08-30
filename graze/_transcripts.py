@@ -12,13 +12,11 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 os.chdir(current_dir)
 
 def get_captions(videoId):
-  full_transcript = []
   try:
     captions = YouTubeTranscriptApi.get_transcript(videoId, languages=["en"], preserve_formatting=True)
     if captions:
-      formatted_captions = [{"text": caption["text"]} for caption in captions]
-      full_transcript.append(formatted_captions)
-      transcript = "\n".join(full_transcript)
+      formatted_captions = [caption["text"] for caption in captions]
+      transcript = "\n".join(formatted_captions)
       return transcript, True
     else:
       return "", False
@@ -30,7 +28,7 @@ def get_captions(videoId):
     return "", False
 
 class Youtube:
-  def __init__(self, api_key:str, filepath:str, max_results:int=50, metrics:bool=False, concurrent:int=None) -> None:
+  def __init__(self, api_key:str, filepath:str, max_results:int=50, metrics:bool=False) -> None:
     self.api_key = api_key
     self.directory, filename_with_ext = os.path.split(filepath)
     self.filename, ext = os.path.splitext(filename_with_ext)
@@ -54,8 +52,7 @@ class Youtube:
           for i in videoIds:
             videoLink = f"https://www.youtube.com/watch?v={i}"
             urldict.append(videoLink)
-            filepath = self.write_links_in_json(urldict)
-          print(f"Data written successfully in JSON at the filepath: {filepath}")
+          self.write_links_in_json(urldict)
         else:
           del videoIds
     if self.metrics:
@@ -94,9 +91,8 @@ class Youtube:
     start_time = timeit.default_timer()
     with tqdm(total=len(videoIds), desc=f"Fetching Captions for channelId: {channel_name}") as pbar:
       for ids in videoIds:
-        transcripts, is_captions = get_captions(videoId=ids)
-        print(transcripts)
-        if is_captions is True:
+        transcripts, _captions = get_captions(videoId=ids)
+        if _captions is True:
           self.write_in_file(transcripts)
           self.valid_videoNo += 1
         self.videoNo += 1
@@ -106,22 +102,28 @@ class Youtube:
     return videoIds
   
   def get_metrics(self):
+    def format_time(seconds):
+      if seconds < 60:
+        return f"{seconds:.2f} seconds"
+      elif seconds < 3600:
+        return f"{seconds / 60:.2f} minutes"
+      else:
+        return f"{seconds / 3600:.2f} hours"
+
     print("\n")
     print("Youtube video caption fetching metrics:\n")
-    print("------------------------------------------------------")
-    print(f"total video fetched: {self.videoNo}")
-    print(f"total video's that had captions: {self.valid_videoNo}")
-    print(f"total time taken: {self.total_time}")
-    print("------------------------------------------------------")
-
+    print("-------------------------------------------")
+    print(f"Total videos fetched: {self.videoNo}")
+    print(f"Total videos that had captions: {self.valid_videoNo}")
+    print(f"Total time taken: {format_time(self.total_time)}")
+    print("-------------------------------------------")
+  
   def write_in_file(self, transcripts):
     filepath = os.path.join(self.directory, f"{self.filename}.txt")
-    with open(f"{filepath}", "w") as outfile:
+    with open(f"{filepath}", "a", encoding="utf-8") as outfile:
       outfile.write(transcripts)
-    return filepath
 
   def write_links_in_json(self, urls):
     filepath = os.path.join(self.directory, f"{self.filename}.json")
-    with open(f"{filepath}", 'w') as outfile:
+    with open(f"{filepath}", "a", encoding="utf-8") as outfile:
       json.dump(urls, outfile, indent=2)
-    return filepath
