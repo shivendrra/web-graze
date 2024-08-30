@@ -1,2 +1,3 @@
-from .queries import britannica_queries, channel_ids, wikipedia_queries
+from .queries import Queries
 from .utils import *
+from .youtube._transcripts import Youtube
