@@ -1,7 +1,4 @@
-from graze import Unsplash
-# from graze.queries import Queries
+from graze import Unsplash, Wikipedia
 
-# queries = Queries(category="search")
-# print(queries())
-image = Unsplash(directory='../images')
-image(topics=['cars'])
+wiki = Wikipedia(filepath='../data.txt', metrics=True)
+wiki(queries=['antarctica', 'europe', 'america'])
