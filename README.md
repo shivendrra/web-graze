@@ -6,9 +6,11 @@ This repository contains a collection of scripts to scrape content from various 
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
-  - [YouTube Scraper](#youtube-scraper)
-  - [Wikipedia Scraper](#wikipedia-scraper)
-  - [Unsplash Scraper](#unsplash-scraper)
+  - [Queries](#1-queries)
+  - [YouTube Scraper](#2-youtube-scraper)
+  - [Wikipedia Scraper](#3-wikipedia-scraper)
+  - [Unsplash Scraper](#4-unsplash-scraper)
+  - [Britannica Scraper](#5-britannica-scraper)
 - [Configuration](#configuration)
 - [Logging](#logging)
 
@@ -145,6 +147,22 @@ Downloading : 100%|████████████████████�
 
 Downloading 'indian festivals' images:
 Downloading : 100%|██████████████████████████| 121/121 [00:30<00:00,  7.29it/s]
+```
+
+### 5. Britannica Scraper
+
+The Britannica scraper generates target URLs from provided queries, fetches the complete web page, and writes it to a file.
+
+#### Running the scraper
+
+```python
+from graze import Britannica
+from graze.queries import Queries
+
+queries = Queries(category="search")
+scraper = Britannica(filepath='../data.txt', metrics=True)
+
+scraper(queries=queries())
 ```
 
 ## Configuration
