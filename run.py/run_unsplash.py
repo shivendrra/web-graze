@@ -2,8 +2,8 @@ import os
 current_directory = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_directory)
 
-from graze import Unsplash
-from graze.queries import Queries
+from webgraze import Unsplash
+from webgraze.queries import Queries
 
 topics = Queries("images")
 

@@ -1,5 +1,5 @@
-from graze import Pexels
-from graze.queries import Queries
+from webgraze import Pexels
+from webgraze.queries import Queries
 
 queries = Queries("images")
 scraper = Pexels(directory="./images", metrics=True)

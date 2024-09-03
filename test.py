@@ -1,8 +1,6 @@
-import os
-current_directory = os.path.dirname(os.path.abspath(__file__))
-os.chdir(current_directory)
+from webgraze import Pexels
+from webgraze.queries import Queries
 
-from graze import Freesound
-
-sound = Freesound(api_key="lMKgKjaRmNMZKKxNqkjx", download_dir="audios", metrics=True)
-sound(topics=["clicks", "background", "nature"])
+queries = Queries("images")
+scraper = Pexels(directory="./images", metrics=True)
+scraper(topics=queries())

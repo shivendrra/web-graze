@@ -1,13 +1,7 @@
 bs4
 requests
 tqdm
-timeit
-json
-re
-googleapiclient
+google-api-python-client
 youtube_transcript_api
-logging
-typing
 selenium
 webdriver-manager
-base64

@@ -46,7 +46,7 @@ This library contains some topics, keywords, search queries & channel ids which 
 #### Channel Ids
 
 ```python
-from graze.queries import Queries
+from webgraze.queries import Queries
 
 queries = Queries(category="channel")
 ```
@@ -54,7 +54,7 @@ queries = Queries(category="channel")
 #### Search Queries
 
 ```python
-from graze.queries import Queries
+from webgraze.queries import Queries
 
 queries = Queries(category="search")
 ```
@@ -62,7 +62,7 @@ queries = Queries(category="search")
 #### Image Topics
 
 ```python
-from graze.queries import Queries
+from webgraze.queries import Queries
 
 queries = Queries(category="channel")
 ```
@@ -96,8 +96,8 @@ os.chdir(current_directory)
 
 api_key = os.getenv('yt_key')
 
-from graze import Youtube
-from graze.queries import Queries
+from webgraze import Youtube
+from webgraze.queries import Queries
 
 queries = Queries(category="channel")
 
@@ -112,8 +112,8 @@ The Wikipedia scraper generates target URLs from provided queries, fetches the c
 #### Running the Scraper
 
 ```python
-from graze import Wikipedia
-from graze.queries import Queries
+from webgraze import Wikipedia
+from webgraze.queries import Queries
 
 queries = Queries(category="search")
 wiki = Wikipedia(filepath='../data.txt', metrics=True)
@@ -134,8 +134,8 @@ The Unsplash Image scraper fetches images based on given topics & saves them in 
 #### Running the Scraper
 
 ```python
-from graze import Unsplash
-from graze.queries import Queries
+from webgraze import Unsplash
+from webgraze.queries import Queries
 
 topics = Queries("images")
 
@@ -159,8 +159,8 @@ The Britannica scraper generates target URLs from provided queries, fetches the 
 #### Running the scraper
 
 ```python
-from graze import Britannica
-from graze.queries import Queries
+from webgraze import Britannica
+from webgraze.queries import Queries
 
 queries = Queries(category="search")
 scraper = Britannica(filepath='../data.txt', metrics=True)
@@ -183,7 +183,7 @@ load_dotenv()
 
 API_KEY = os.getenv("freesound_key")
 
-from graze import Freesound
+from webgraze import Freesound
 
 sound = Freesound(api_key=API_KEY, download_dir="audios", metrics=True)
 sound(topics=["clicks", "background", "nature"])
@@ -220,8 +220,8 @@ Scrapes & downloads pictures from [pexels.com](https://www.pexels.com/) & saves 
 #### Running the scraper
 
 ```python
-from graze import Pexels
-from graze.queries import Queries
+from webgraze import Pexels
+from webgraze.queries import Queries
 
 queries = Queries("images")
 scraper = Pexels(directory="./images", metrics=True)
