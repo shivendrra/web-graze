@@ -6,9 +6,13 @@ This repository contains a collection of scripts to scrape content from various 
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
-  - [YouTube Scraper](#youtube-scraper)
-  - [Wikipedia Scraper](#wikipedia-scraper)
-  - [Unsplash Scraper](#unsplash-scraper)
+  - [Queries](#1-queries)
+  - [YouTube Scraper](#2-youtube-scraper)
+  - [Wikipedia Scraper](#3-wikipedia-scraper)
+  - [Unsplash Scraper](#4-unsplash-scraper)
+  - [Britannica Scraper](#5-britannica-scraper)
+  - [Freesound Scraper](#6-freesound-scraper)
+  - [Pexels Scraper](#7-pexels-scraper)
 - [Configuration](#configuration)
 - [Logging](#logging)
 
@@ -32,6 +36,8 @@ This repository contains a collection of scripts to scrape content from various 
    ```
 
 ## Usage
+
+For sample examples, use the [run.py](run.py) that contains example for each type of scraper.
 
 ### 1. Queries
 
@@ -120,7 +126,7 @@ wiki(queries=queries(), extra_urls=True)
 The Unsplash Image scraper fetches images based on given topics & saves them in their respective folders
 
 #### Configuration
-- Define your search queries in `queries.py`:
+- Define your search queries like this:
   ```python
   search_queries = ["topic1", "topic2", "topic3"]
   ```
@@ -139,12 +145,99 @@ image(topics=topics())
 
 #### Output:
 ```shell
-
 Downloading 'american football' images:
 Downloading : 100%|██████████████████████████| 176/176 [00:30<00:00,  5.72it/s]
 
 Downloading 'indian festivals' images:
 Downloading : 100%|██████████████████████████| 121/121 [00:30<00:00,  7.29it/s]
+```
+
+### 5. Britannica Scraper
+
+The Britannica scraper generates target URLs from provided queries, fetches the complete web page, and writes it to a file.
+
+#### Running the scraper
+
+```python
+from graze import Britannica
+from graze.queries import Queries
+
+queries = Queries(category="search")
+scraper = Britannica(filepath='../data.txt', metrics=True)
+
+scraper(queries=queries())
+```
+
+### 6. Freesound Scraper
+
+Scraper to download & save audios from [freesound.org](https://freesound.org/) using its official API. Saves audios in different directories according to the topics.
+
+#### Running the scraper
+
+```python
+import os
+current_directory = os.path.dirname(os.path.abspath(__file__))
+os.chdir(current_directory)
+from dotenv import load_dotenv
+load_dotenv()
+
+API_KEY = os.getenv("freesound_key")
+
+from graze import Freesound
+
+sound = Freesound(api_key=API_KEY, download_dir="audios", metrics=True)
+sound(topics=["clicks", "background", "nature"])
+```
+
+#### Output
+
+```shell
+Downloading 'clicks' audio files:
+Response status code: 200
+Downloading 'clicks' audio files: 100%|██████████████████████████████| 10/10 [00:20<00:00,  2.01s/it] 
+
+Downloading 'background' audio files:
+Response status code: 200
+Downloading 'background' audio files: 100%|██████████████████████████████| 10/10 [00:53<00:00,  5.37s/it] 
+
+Downloading 'nature' audio files:
+Response status code: 200
+Downloading 'nature' audio files: 100%|██████████████████████████████| 10/10 [01:57<00:00, 11.78s/it] 
+
+Freesound Scraper Metrics:
+
+-------------------------------------------
+Total topics fetched: 3
+Total audio files downloaded: 30
+Total time taken: 3.26 minutes
+-------------------------------------------
+```
+
+### 7. Pexels Scraper
+
+Scrapes & downloads pictures from [pexels.com](https://www.pexels.com/) & saves them in individual directory topic-wise.
+
+#### Running the scraper
+
+```python
+from graze import Pexels
+from graze.queries import Queries
+
+queries = Queries("images")
+scraper = Pexels(directory="./images", metrics=True)
+scraper(topics=queries())
+```
+
+#### Output
+```shell
+Downloading 'american football' images:
+Downloading: 100%|████████████████████████████████| 24/24 [00:03<00:00,  7.73it/s]
+
+Downloading 'india' images:
+Downloading: 100%|████████████████████████████████| 27/27 [00:04<00:00,  5.99it/s]
+
+Downloading 'europe' images:
+Downloading: 100%|████████████████████████████████| 24/24 [00:06<00:00,  3.55it/s]
 ```
 
 ## Configuration

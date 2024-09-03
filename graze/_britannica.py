@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import timeit, time
 import re
+import random
 
 logging.basicConfig(filename="britannica_scraper.log", level=logging.ERROR)
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,10 +27,16 @@ def get_target_url(target_url, headers):
       return list_url
     elif r.status_code == 429:
       print(f"Rate limit exceeded. Waiting 30secs before retrying: {target_url}")
-      time.sleep(30)
+      time.sleep(random.uniform(2, 5))
     else:
       print(f"Skipping this URL due to status code {r.status_code}: {target_url}")
       return []
+
+USER_AGENTS = [
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
+]
 
 class Britannica:
   def __init__(self, filepath:str, max_limit:int=10, metrics:bool=False) -> None:
@@ -39,7 +46,12 @@ class Britannica:
     if not os.path.exists(self.directory):
       os.makedirs(self.directory)
     self.max_limit = max_limit
-    self.headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"}
+    self.headers = {
+      'User-Agent': random.choice(USER_AGENTS),
+      'Referer': 'https://www.google.com/',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Accept-Encoding': 'gzip, deflate, br',
+    }
     self.metrics = metrics
     self.total_urls = 0
     self.total_pages = 0
