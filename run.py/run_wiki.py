@@ -1,5 +1,5 @@
-from graze import Wikipedia
-from graze.queries import Queries
+from webgraze import Wikipedia
+from webgraze.queries import Queries
 
 queries = Queries(category="search")
 wiki = Wikipedia(filepath='../data.txt', metrics=True)

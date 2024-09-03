@@ -6,8 +6,8 @@ os.chdir(current_directory)
 
 api_key = os.getenv('yt_key')
 
-from graze import Youtube
-from graze.queries import Queries
+from webgraze import Youtube
+from webgraze.queries import Queries
 
 queries = Queries(category="channel")
 

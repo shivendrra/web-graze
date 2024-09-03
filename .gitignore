@@ -4,8 +4,11 @@ __pycache__/
 *.py[cod]
 *.exe
 
+*.pypirc
 build
 .vscode
+
+*.egg-info/
 
 # extras
 *.env
