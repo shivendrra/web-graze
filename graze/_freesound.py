@@ -47,27 +47,35 @@ class Freesound:
       'query': query,
       'token': self.api_key,
       'page_size': self.max_results,
-      'fields': 'id,previews,original_filename'
+      'fields': 'id,previews,original_filename,name'
     }
     response = requests.get(self.base_url, params=params)
-    if response.status_code == 200:
-      data = response.json()
-      audio_files = data['results']
-      if not audio_files:
-        print(f"No audio files found for the topic '{query}'")
-        return
-      
-      query_dir = os.path.join(self.download_dir, query.replace(' ', '_'))
-      if not os.path.exists(query_dir):
-        os.makedirs(query_dir)
-      
-      for audio in tqdm(audio_files, desc=f"Downloading '{query}' audio files"):
-        audio_url = audio['previews']['preview-hq-mp3']
-        audio_filename = os.path.join(query_dir, f"{audio['id']}_{audio['original_filename']}.mp3")
-        download_audio_file(audio_url, audio_filename)
-        self.total_files += 1
-    else:
+    
+    if response.status_code == 401:
+      print("Unauthorized access. Please check your API key.")
+      logging.error(f"Unauthorized access with API key: {self.api_key}")
+      return
+    elif response.status_code != 200:
+      print(f"Failed to fetch data for '{query}'. Status code: {response.status_code}")
       logging.error(f"Failed to fetch data for '{query}'. Status code: {response.status_code}")
+      return
+
+    data = response.json()
+    audio_files = data.get('results', [])
+    if not audio_files:
+      print(f"No audio files found for the topic '{query}'")
+      return
+    
+    query_dir = os.path.join(self.download_dir, query.replace(' ', '_'))
+    if not os.path.exists(query_dir):
+      os.makedirs(query_dir)
+    
+    for audio in tqdm(audio_files, desc=f"Downloading '{query}' audio files"):
+      audio_url = audio['previews']['preview-hq-mp3']
+      audio_filename = audio.get('original_filename', f"{audio['id']}_{audio['name']}.mp3")
+      audio_filename = os.path.join(query_dir, f"{audio['id']}_{audio_filename}".replace("/", "_"))
+      download_audio_file(audio_url, audio_filename)
+      self.total_files += 1
     
   def get_metrics(self):
     print("\nFreesound Scraper Metrics:\n")
