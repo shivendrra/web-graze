@@ -1,114 +1,169 @@
-import os
-import logging
-import requests
+import os, logging, requests, timeit, time, re, random
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-import timeit, time
-import re
-import random
+from typing import List, Optional
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from urllib.parse import urljoin, quote_plus
 
-logging.basicConfig(filename="britannica_scraper.log", level=logging.ERROR)
-current_dir = os.path.dirname(os.path.abspath(__file__))
-os.chdir(current_dir)
+class BritannicaScraper:
+  USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"
+  ]
 
-def build_britannica_url(query, page_no):
-  formatted_query = '%20'.join(query.split(' '))
-  url = f"https://www.britannica.com/search?query={formatted_query}&page={page_no}"
-  return url
+  BASE_URL = "https://www.britannica.com"
+  SEARCH_URL = f"{BASE_URL}/search"
 
-def get_target_url(target_url, headers):
-  while True:
-    r = requests.get(target_url, headers=headers)
-    if r.status_code == 200:
-      html_content = r.content
-      soup = BeautifulSoup(html_content, 'html.parser')
-      fetched_urls = soup.find_all('a', class_='md-crosslink')
-      list_url = [url.get('href') for url in fetched_urls]
-      return list_url
-    elif r.status_code == 429:
-      print(f"Rate limit exceeded. Waiting 30secs before retrying: {target_url}")
-      time.sleep(random.uniform(2, 5))
-    else:
-      print(f"Skipping this URL due to status code {r.status_code}: {target_url}")
+  def __init__(self, filepath: str, max_pages: int = 10, metrics: bool = False, max_workers: int = 3, delay: float = 1.0):
+    self.directory, filename_with_ext = os.path.split(filepath)
+    self.filename = os.path.splitext(filename_with_ext)[0].strip()
+    self.max_pages, self.metrics, self.max_workers, self.delay = max_pages, metrics, max_workers, delay
+    self.total_urls, self.total_pages, self.total_time = 0, 0, 0
+    os.makedirs(self.directory, exist_ok=True)
+
+    self.session = requests.Session()
+    self.session.headers.update({
+      'User-Agent': random.choice(self.USER_AGENTS),
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.5',
+      'Accept-Encoding': 'gzip, deflate',
+      'Referer': 'https://www.google.com/',
+      'Connection': 'keep-alive',
+      'Upgrade-Insecure-Requests': '1',
+    })
+
+    self.logger = logging.getLogger(__name__)
+    handler = logging.FileHandler("britannica_scraper.log")
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    self.logger.addHandler(handler)
+    self.logger.setLevel(logging.INFO)
+
+    self.logger.info("Britannica scraper initialized")
+
+  def _make_request(self, url: str, max_retries: int = 3) -> Optional[requests.Response]:
+    for attempt in range(max_retries):
+      try:
+        time.sleep(random.uniform(self.delay, self.delay + 0.5))
+        response = self.session.get(url, timeout=10)
+
+        if response.status_code == 200: return response
+        elif response.status_code == 429:
+          wait_time = (2 ** attempt) + random.uniform(1, 3)
+          self.logger.warning(f"Rate limited. Waiting {wait_time:.1f}s before retry {attempt + 1}")
+          time.sleep(wait_time)
+        else: self.logger.warning(f"HTTP {response.status_code} for URL: {url}")
+
+      except requests.RequestException as e:
+        self.logger.error(f"Request failed (attempt {attempt + 1}): {e}")
+        if attempt < max_retries - 1: time.sleep(random.uniform(1, 3))
+    return None
+
+  def _build_search_url(self, query: str, page: int) -> str: return f"{self.SEARCH_URL}?query={quote_plus(query)}&page={page}"
+  def _extract_article_urls(self, response: requests.Response) -> List[str]:
+    try:
+      soup = BeautifulSoup(response.content, 'html.parser')
+      links = soup.find_all('a', class_='md-crosslink')
+      urls = [link.get('href') for link in links if link.get('href')]
+      return [url for url in urls if url and url.startswith('/')]
+    except Exception as e:
+      self.logger.error(f"Error extracting URLs: {e}")
       return []
 
-USER_AGENTS = [
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
-]
-
-class Britannica:
-  def __init__(self, filepath:str, max_limit:int=10, metrics:bool=False) -> None:
-    self.directory, filename_with_ext = os.path.split(filepath)
-    self.filename, ext = os.path.splitext(filename_with_ext)
-    self.filename = self.filename.strip()
-    if not os.path.exists(self.directory):
-      os.makedirs(self.directory)
-    self.max_limit = max_limit
-    self.headers = {
-      'User-Agent': random.choice(USER_AGENTS),
-      'Referer': 'https://www.google.com/',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Accept-Encoding': 'gzip, deflate, br',
-    }
-    self.metrics = metrics
-    self.total_urls = 0
-    self.total_pages = 0
-
-  def __call__(self, queries:list[str]):
-    if not queries:
-      raise ValueError("Search queries can't be empty.")
-    else:
-      self.total_time = timeit.default_timer()
-      for query in tqdm(queries, desc="Generating Britannica URLs"):
-        page_no = 1
-        for i in range(self.max_limit):
-          target_url = build_britannica_url(query, page_no)
-          new_urls = get_target_url(target_url, self.headers)
-          if new_urls:
-            self.write_urls_to_file(new_urls)
-            self.total_urls += len(new_urls)
-          page_no += 1
-      
-      self.total_time = timeit.default_timer() - self.total_time
-      if self.metrics:
-        self.get_metrics()
-
-  def text_extractor(self, url_snippet):
-    target_url = f"https://britannica.com{url_snippet}"
-    r = requests.get(target_url, headers=self.headers)
-
-    if r.status_code == 200:
-      soup = BeautifulSoup(r.content, 'html.parser')
+  def _extract_article_content(self, url_path: str) -> Optional[str]:
+    full_url = urljoin(self.BASE_URL, url_path)
+    response = self._make_request(full_url)
+    if not response: return None
+    try:
+      soup = BeautifulSoup(response.content, 'html.parser')
       paragraphs = soup.find_all('p')
-      page = '\n'.join([p.get_text() for p in paragraphs if "Our editors will review what you’ve submitted and determine whether to revise the article." not in p.get_text()])
-      page = re.sub('&\w+;', '', page)
-      self.total_pages += 1
-      return page
-    else:
-      print(f"Failed to fetch page content: {target_url}")
-      return None
+      
+      content_parts = []
+      for p in paragraphs:
+        text = p.get_text(strip=True)
+        if text and "Our editors will review what you've submitted" not in text: content_parts.append(text)
 
-  def write_urls_to_file(self, url_snippets):
+      if content_parts:
+        content = '\n'.join(content_parts)
+        content = re.sub(r'&\w+;', '', content)
+        content = re.sub(r'\s+', ' ', content)
+        self.total_pages += 1
+        return content
+    except Exception as e: self.logger.error(f"Error extracting content from {full_url}: {e}")
+    return None
+
+  def _process_query(self, query: str) -> List[str]:
+    all_urls = []
+
+    for page in range(1, self.max_pages + 1):
+      search_url = self._build_search_url(query, page)
+      response = self._make_request(search_url)
+
+      if not response:
+        self.logger.warning(f"Failed to fetch search page {page} for query: {query}")
+        continue
+      
+      urls = self._extract_article_urls(response)
+      if not urls:
+        self.logger.info(f"No more URLs found at page {page} for query: {query}")
+        break
+
+      all_urls.extend(urls)
+      self.logger.debug(f"Found {len(urls)} URLs on page {page} for query: {query}")
+
+    self.total_urls += len(all_urls)
+    return all_urls
+
+  def _scrape_articles_concurrent(self, urls: List[str]) -> None:
     filepath = os.path.join(self.directory, f"{self.filename}.txt")
-    with open(filepath, 'a', encoding='utf-8') as f:
-      for snippet in url_snippets:
-        page = self.text_extractor(snippet)
-        if page:
-          f.write(page)
-          f.write("\n")
 
-  def get_metrics(self):
-    print("\n")
-    print("Britannica scraping metrics:\n")
-    print("------------------------------------------------------")
-    print(f"Total URLs fetched: {self.total_urls}")
-    print(f"Total pages extracted: {self.total_pages}")
-    if self.total_time < 60:
-      print(f"Total time taken: {self.total_time:.2f} seconds")
-    elif self.total_time < 3600:
-      print(f"Total time taken: {self.total_time/60:.2f} minutes")
-    else:
-      print(f"Total time taken: {self.total_time/3600:.2f} hours")
-    print("------------------------------------------------------")
+    with ThreadPoolExecutor(max_workers=self.max_workers) as executor, \
+      open(filepath, 'a', encoding='utf-8') as file:
+      future_to_url = {executor.submit(self._extract_article_content, url): url for url in urls}
+
+      for future in as_completed(future_to_url):
+        content = future.result()
+        if content:
+          file.write(f"{content}\n\n")
+          file.flush()
+
+  def scrape_queries(self, queries: List[str]) -> None:
+    if not queries:
+      raise ValueError("Search queries cannot be empty")
+
+    start_time = timeit.default_timer()
+    try:
+      self.logger.info(f"Starting scraping for {len(queries)} queries")
+
+      for query in tqdm(queries, desc="Processing queries"):
+        self.logger.info(f"Processing query: {query}")
+        urls = self._process_query(query)
+        if urls:
+          self.logger.info(f"Scraping {len(urls)} articles for query: {query}")
+          self._scrape_articles_concurrent(urls)
+        else: self.logger.warning(f"No URLs found for query: {query}")
+
+      self.total_time = timeit.default_timer() - start_time
+      if self.metrics: self._display_metrics()
+
+    except Exception as e:
+      self.logger.error(f"Error during scraping: {e}")
+      raise
+    finally: self.session.close()
+
+  def _display_metrics(self) -> None:
+    def format_time(seconds): return f"{seconds:.2f}s" if seconds < 60 else f"{seconds/60:.2f}m" if seconds < 3600 else f"{seconds/3600:.2f}h"
+    success_rate = (self.total_pages / self.total_urls * 100) if self.total_urls > 0 else 0
+    avg_time_per_page = self.total_time / self.total_pages if self.total_pages > 0 else 0
+    
+    print(f"\n{'='*50}")
+    print("BRITANNICA SCRAPING METRICS")
+    print(f"{'='*50}")
+    print(f"Total URLs discovered: {self.total_urls}")
+    print(f"Articles successfully scraped: {self.total_pages}")
+    print(f"Success rate: {success_rate:.1f}%")
+    print(f"Total time: {format_time(self.total_time)}")
+    print(f"Average time per article: {avg_time_per_page:.2f}s")
+    print(f"{'='*50}")
+
+    self.logger.info(f"Scraping completed - URLs: {self.total_urls}, Pages: {self.total_pages}, Time: {self.total_time:.2f}s")
