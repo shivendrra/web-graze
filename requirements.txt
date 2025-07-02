@@ -1,7 +1,0 @@
-bs4
-requests
-tqdm
-google-api-python-client
-youtube_transcript_api
-selenium
-webdriver-manager
