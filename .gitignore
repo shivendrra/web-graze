@@ -4,6 +4,9 @@ __pycache__/
 *.py[cod]
 *.exe
 
+extra.py
+test.py
+
 *.pypirc
 build
 .vscode

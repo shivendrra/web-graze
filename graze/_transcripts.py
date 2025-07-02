@@ -1,11 +1,8 @@
 from typing import *
 from tqdm import tqdm
-import json
-import os
-import logging
+import json, os, logging, timeit
 from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled
-import timeit
 
 logging.basicConfig(filename="youtube_fetch.log", level=logging.ERROR)
 current_dir = os.path.dirname(os.path.realpath(__file__))
