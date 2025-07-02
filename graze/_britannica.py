@@ -3,23 +3,26 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from urllib.parse import urljoin, quote_plus
+from urllib.parse import urljoin
 
-class BritannicaScraper:
+def build_search_url(query, page_no):
+  formatted_query = '%20'.join(query.split(' '))
+  url = f"https://www.britannica.com/search?query={formatted_query}&page={page_no}"
+  return url
+
+class Britannica:
   USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"
   ]
 
-  BASE_URL = "https://www.britannica.com"
-  SEARCH_URL = f"{BASE_URL}/search"
-
   def __init__(self, filepath: str, max_pages: int = 10, metrics: bool = False, max_workers: int = 3, delay: float = 1.0):
     self.directory, filename_with_ext = os.path.split(filepath)
     self.filename = os.path.splitext(filename_with_ext)[0].strip()
     self.max_pages, self.metrics, self.max_workers, self.delay = max_pages, metrics, max_workers, delay
     self.total_urls, self.total_pages, self.total_time = 0, 0, 0
+    self.BASE_URL = "https://www.britannica.com"  # Added missing BASE_URL
     os.makedirs(self.directory, exist_ok=True)
 
     self.session = requests.Session()
@@ -34,12 +37,36 @@ class BritannicaScraper:
     })
 
     self.logger = logging.getLogger(__name__)
-    handler = logging.FileHandler("britannica_scraper.log")
+    handler = logging.FileHandler("../britannica_scraper.log")
     handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     self.logger.addHandler(handler)
     self.logger.setLevel(logging.INFO)
-
     self.logger.info("Britannica scraper initialized")
+
+  def _extract_article_urls(self, response: requests.Response) -> List[str]:
+    try:
+      soup = BeautifulSoup(response.content, 'html.parser')
+      selectors, urls, unique_urls = ['a[href*="/topic/"]', 'a[href*="/biography/"]', 'a[href*="/place/"]', 'a[href*="/event/"]', '.result-title a', '.search-result a', 'h3 a', 'a.md-crosslink'], [], []
+      for selector in selectors:
+        links = soup.select(selector)
+        if links:
+          for link in links:
+            href = link.get('href')
+            if href and (href.startswith('/') or 'britannica.com' in href):
+              if href.startswith('/'): urls.append(href)
+              elif 'britannica.com' in href and href not in urls:
+                path = href.split('britannica.com')[-1]
+                if path.startswith('/'): urls.append(path)
+          if urls: break
+      for url in urls:
+        if url not in unique_urls: unique_urls.append(url)
+      self.logger.debug(f"Found {len(unique_urls)} unique URLs")
+      return unique_urls
+    except Exception as e:
+      self.logger.error(f"Error extracting URLs: {e}")
+      return []
+
+  def __call__(self, queries:List[str]): self.scrape_queries(queries=queries)
 
   def _make_request(self, url: str, max_retries: int = 3) -> Optional[requests.Response]:
     for attempt in range(max_retries):
@@ -59,17 +86,6 @@ class BritannicaScraper:
         if attempt < max_retries - 1: time.sleep(random.uniform(1, 3))
     return None
 
-  def _build_search_url(self, query: str, page: int) -> str: return f"{self.SEARCH_URL}?query={quote_plus(query)}&page={page}"
-  def _extract_article_urls(self, response: requests.Response) -> List[str]:
-    try:
-      soup = BeautifulSoup(response.content, 'html.parser')
-      links = soup.find_all('a', class_='md-crosslink')
-      urls = [link.get('href') for link in links if link.get('href')]
-      return [url for url in urls if url and url.startswith('/')]
-    except Exception as e:
-      self.logger.error(f"Error extracting URLs: {e}")
-      return []
-
   def _extract_article_content(self, url_path: str) -> Optional[str]:
     full_url = urljoin(self.BASE_URL, url_path)
     response = self._make_request(full_url)
@@ -77,12 +93,10 @@ class BritannicaScraper:
     try:
       soup = BeautifulSoup(response.content, 'html.parser')
       paragraphs = soup.find_all('p')
-      
       content_parts = []
       for p in paragraphs:
         text = p.get_text(strip=True)
         if text and "Our editors will review what you've submitted" not in text: content_parts.append(text)
-
       if content_parts:
         content = '\n'.join(content_parts)
         content = re.sub(r'&\w+;', '', content)
@@ -96,21 +110,17 @@ class BritannicaScraper:
     all_urls = []
 
     for page in range(1, self.max_pages + 1):
-      search_url = self._build_search_url(query, page)
+      search_url = build_search_url(query, page)
       response = self._make_request(search_url)
-
       if not response:
         self.logger.warning(f"Failed to fetch search page {page} for query: {query}")
         continue
-      
       urls = self._extract_article_urls(response)
       if not urls:
         self.logger.info(f"No more URLs found at page {page} for query: {query}")
         break
-
       all_urls.extend(urls)
       self.logger.debug(f"Found {len(urls)} URLs on page {page} for query: {query}")
-
     self.total_urls += len(all_urls)
     return all_urls
 
